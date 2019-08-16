@@ -17,7 +17,7 @@ public class pistonOut extends Command {
   public pistonOut() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
-  //  requires(new exampleSolenoid());
+    //requires(new exampleSolenoid()); //using this line causes a "No Robot Code" error
   }
 
   // Called just before this Command runs the first time
@@ -30,7 +30,7 @@ public class pistonOut extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-//    exampleSolenoid.pistonOut();
+    exampleSolenoid.pistonOut();
   }
 
   // Make this return true when this Command no longer needs to run execute()

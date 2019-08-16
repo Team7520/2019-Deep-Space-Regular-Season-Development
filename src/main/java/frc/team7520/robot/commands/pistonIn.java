@@ -16,7 +16,7 @@ public class pistonIn extends Command {
   public pistonIn() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
-//    requires(new exampleSolenoid());
+    // requires(new exampleSolenoid()); //using this line causes a "No Robot Code" error
 //    requires(Robot.m);
   }
 
@@ -29,7 +29,7 @@ public class pistonIn extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-//    exampleSolenoid.pistonIn();
+    exampleSolenoid.pistonIn();
   }
 
   // Make this return true when this Command no longer needs to run execute()

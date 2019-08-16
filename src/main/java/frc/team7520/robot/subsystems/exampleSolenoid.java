@@ -21,15 +21,15 @@ public class exampleSolenoid extends Subsystem {
   // here. Call these from Commands.
 
 // public static Solenoid exampleSolenoid1 = new Solenoid(0);
-// public static DoubleSolenoid exampleSolenoid1 = new DoubleSolenoid(0, 1);
+ public static DoubleSolenoid exampleSolenoid1 = new DoubleSolenoid(0, 1);
 
   public static void pistonOut() {
-  //  exampleSolenoid1.set(DoubleSolenoid.Value.kForward);
+    exampleSolenoid1.set(DoubleSolenoid.Value.kForward);
 
   }
 
   public static void pistonIn() {
- //   exampleSolenoid1.set(DoubleSolenoid.Value.kReverse);
+    exampleSolenoid1.set(DoubleSolenoid.Value.kReverse);
   }
 
 

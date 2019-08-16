@@ -142,11 +142,21 @@ public LimitSensors limitSensors = new LimitSensors();
   public void robotInit() {
     SmartDashboard.putString("Auton Chooser", " select before each game");
     m_oi = new OI();
-    m_chooser.setDefaultOption("Cross Hab Line (Default Auto)", new AutonCrossHabLine());
-    m_chooser.addOption("Do Nothing (idle)", new AutonDoNothing());
-    m_chooser.addOption("Front Cargo Panel", new AutonFrontCargoPanel());
-    m_chooser.addOption("Side Cargo Panel", new AutonSideCargoPanel());
-    m_chooser.addOption("Rocket Cargo Panel", new AutonRocketPanel());
+    m_chooser.setDefaultOption("Hatch In (up) (Default Auton)", new hatchIn());
+    m_chooser.addOption("Hatch Out (down)", new hatchOut());
+    m_chooser.addOption("Collect Bar Up", new CollectBarRaising());
+    m_chooser.addOption("Collect Bar Down", new CollectBarLowering());
+    m_chooser.addOption("Cargo Intake", new CargoIntake());
+    m_chooser.addOption("Cargo Shoot", new CargoShoot());
+    m_chooser.addOption("Arm Up To Limit", new ArmToUpLimit());
+    m_chooser.addOption("Hatch In and Out",new CommandGroupTest()); //testing commandgroups
+
+    m_chooser.addOption("Cross Hab Line (Default Auto)", new AutonCrossHabLine());
+    //m_chooser.addOption("Do Nothing (idle)", new AutonDoNothing());
+    //m_chooser.addOption("Front Cargo Panel", new AutonFrontCargoPanel());
+    //m_chooser.addOption("Side Cargo Panel", new AutonSideCargoPanel());
+    //m_chooser.addOption("Rocket Cargo Panel", new AutonRocketPanel());
+    //m_chooser.addOption(name, object);
 
     //m_chooser.addObject("Ed's Controls", DriveControls.ED_CONTROLS);
     SmartDashboard.putBoolean("Ed's Controls", true);
@@ -270,6 +280,7 @@ cameraArm.setFPS(10);
   // assign motors for subsystems
   m_driveTrain.setLeftMasterMotor(leftDrive1);
   m_driveTrain.setRightMasterMotor(rightDrive1);
+  m_driveTrain.setDriveTrain(leftDrive1, rightDrive1);
 
   m_subArm.setMotor(this.armMotor);
   m_subConveyer.setMotor(this.ballIntake);
@@ -289,17 +300,17 @@ cameraArm.setFPS(10);
   SmartDashboard.putBoolean("Update sensors status", upArmLimitSwitch.get());
   showSensorsStatus();
   // test commands
-  SmartDashboard.putString("Test Commands", "Press start to test a command");
-  SmartDashboard.putData("FrontArmPushDownForL2", new FrontArmPushDownForL2());
-  SmartDashboard.putData("Collect Cargo Using Collect Bars", new CollectCargoCmdGrp());
-  SmartDashboard.putData("Collect bar to upper limit", new CollectBarToUpLimit());
-  SmartDashboard.putData("Cargo Intake", cargoIntakeCmd);
-  SmartDashboard.putData("Cargo Shoot", new CargoShoot());
-  SmartDashboard.putData("Hatch in",   hatchInCmd); //the commands here are not scheduled to run for some reason
-  SmartDashboard.putData("Hatch out", hatchOutCmd); //these commands are put under a "value" parameter; do these commands give values?
-  SmartDashboard.putData("Hatch stop", new hatchStop());
-  SmartDashboard.putData("Piston in", new pistonIn());
-  SmartDashboard.putData("Piston out", new pistonIn());
+  // SmartDashboard.putString("Test Commands", "Press start to test a command");
+  // SmartDashboard.putData("FrontArmPushDownForL2", new FrontArmPushDownForL2());
+  // SmartDashboard.putData("Collect Cargo Using Collect Bars", new CollectCargoCmdGrp());
+  // SmartDashboard.putData("Collect bar to upper limit", new CollectBarToUpLimit());
+  // SmartDashboard.putData("Cargo Intake", cargoIntakeCmd);
+  // SmartDashboard.putData("Cargo Shoot", new CargoShoot());
+  // SmartDashboard.putData("Hatch in",   new hatchIn()); //the commands here are not scheduled to run for some reason
+  // SmartDashboard.putData("Hatch out", new hatchOut()); //these commands are put under a "value" parameter; do these commands give values?
+  // SmartDashboard.putData("Hatch stop", new hatchStop());
+  // SmartDashboard.putData("Piston in", new pistonIn());
+  // SmartDashboard.putData("Piston out", new pistonOut());
   SmartDashboard.updateValues();
 
   //CommandBase.init();
@@ -412,6 +423,8 @@ cameraArm.setFPS(10);
   @Override
   public void autonomousPeriodic() {
     Scheduler.getInstance().run();
+    //Scheduler.getInstance().add(new CommandGroupTest());
+    //Scheduler.getInstance().add(new hatchIn()); //runs multiple times
 /*
    long timePassed = System.currentTimeMillis() - this.autoStartTime;
    
@@ -438,7 +451,7 @@ cameraArm.setFPS(10);
    }
 */
 
-teleopGamePadControl();
+//teleopGamePadControl();
 
 }
   
@@ -606,8 +619,11 @@ teleopGamePadControl();
       this.exampleSolenoid1.set(DoubleSolenoid.Value.kReverse);
     }
     
-    //if(! m_subHatch.isUsed) // if it is not being used by a command right now
-    //{
+//    button1.whenPressed(new hatchIn());
+//    button4.whenPressed(new hatchOut());
+    
+    if(!m_subHatch.isUsed) // if it is not being used by a command right now
+    {
       if(!button1.get() && !button4.get())
       {
         this.hatchOuttake.set(ControlMode.PercentOutput , 0);
@@ -622,7 +638,7 @@ teleopGamePadControl();
         //this.hatchOuttake.set(ControlMode.PercentOutput , -1);
         m_subHatch.hatchOut();
       }
-    //}
+    }
 
    /* if(otherButton1.get()) //this allows for straight driving
     {

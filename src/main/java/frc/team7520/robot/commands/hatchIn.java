@@ -15,7 +15,7 @@ import frc.team7520.robot.subsystems.*;
 
 public class hatchIn extends Command {
   public boolean canceled = false;
-  public double timeout = 4.0; //seconds
+  public double timeout = 0.5; //seconds
   public hatchIn() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
@@ -37,6 +37,7 @@ public class hatchIn extends Command {
   @Override
   protected void initialize() {
     System.out.println("hatchIn command init");
+    Robot.m_subHatch.setIsInUse(true);
 //    Robot.m_subHatch.hatchIn();
   }
 
@@ -61,8 +62,8 @@ public class hatchIn extends Command {
   // Called once after isFinished returns true
   @Override
   protected void end() {
-    Robot.m_subHatch.hatchStop();
-    Robot.m_subHatch.isUsed = false;
+    Robot.m_subHatch.cancel();
+    Robot.m_subHatch.setIsInUse(false);
   }
 
   // Called when another command which requires one or more of the same

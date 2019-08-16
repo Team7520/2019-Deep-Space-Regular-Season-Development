@@ -8,9 +8,11 @@
 package frc.team7520.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.*;
+
 
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.team7520.robot.Robot;
@@ -20,6 +22,7 @@ import frc.team7520.robot.Robot;
 public class DriveTrain extends Subsystem {
   private TalonSRX motorLeftMaster;
   private TalonSRX motorRightMaster;
+  private DifferentialDrive drive; 
 
   private double startYaw = 0;
   private double currentYaw = 0 ;
@@ -35,31 +38,36 @@ public class DriveTrain extends Subsystem {
     motorRightMaster = rightMasterMotor;
   }
 
+  public void setDriveTrain(WPI_TalonSRX leftMasterMotor, WPI_TalonSRX rightMasterMotor) {
+    drive = new DifferentialDrive(leftMasterMotor, rightMasterMotor);
+  }
+
   public void setStartYaw(double yaw) {
     startYaw = yaw;
   }
 
-  public void move(double leftSpeed, double rightSpeed) {
+  public void move(double driveSpeed, double zRotation) {
     isMovingStraight = false;
-    motorLeftMaster.set(ControlMode.PercentOutput, leftSpeed);
-    motorRightMaster.set(ControlMode.PercentOutput, rightSpeed);
+    // motorLeftMaster.set(ControlMode.PercentOutput, leftSpeed);
+    // motorRightMaster.set(ControlMode.PercentOutput, rightSpeed);
+    drive.arcadeDrive(driveSpeed, zRotation);
   }
 
-  public void moveStraight(double leftSpeed, double rightSpeed) {
-    if(!isMovingStraight)
-    {  
-      startYaw = Robot.navX.getZAngle();
-      isMovingStraight = true;
-    }
-    currentYaw = Robot.navX.getZAngle();
-    double errorAllowance = 1.0; // degree
-    // get current yaw
-    if(Math.abs(currentYaw - startYaw) > errorAllowance) 
-    {
-      double speedAdjustment = leftSpeed * 0.1 * (currentYaw - startYaw) / Math.abs(currentYaw - startYaw);
-      motorLeftMaster.set(ControlMode.PercentOutput, leftSpeed * (1 - speedAdjustment));
-      motorRightMaster.set(ControlMode.PercentOutput, leftSpeed);
-    }
+  public void moveStraight(double driveSpeed) {
+    // if(!isMovingStraight)
+    // {  
+    //   startYaw = Robot.navX.getZAngle();
+    //   isMovingStraight = true;
+    // }
+    // currentYaw = Robot.navX.getZAngle();
+    // double errorAllowance = 1.0; // degree
+    // // get current yaw
+    // if(Math.abs(currentYaw - startYaw) > errorAllowance) 
+    // {
+    //   double speedAdjustment = leftSpeed * 0.1 * (currentYaw - startYaw) / Math.abs(currentYaw - startYaw);
+    //   motorLeftMaster.set(ControlMode.PercentOutput, leftSpeed * (1 - speedAdjustment));
+    //   motorRightMaster.set(ControlMode.PercentOutput, leftSpeed);
+    // }
   }
 
 

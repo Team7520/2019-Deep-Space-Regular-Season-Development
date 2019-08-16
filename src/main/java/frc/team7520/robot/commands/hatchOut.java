@@ -12,7 +12,7 @@ import frc.team7520.robot.Robot;
 import frc.team7520.robot.subsystems.*;
 
 public class hatchOut extends Command {
-  public double timeout = 1.0; //seconds
+  public double timeout = 0.5; //seconds
   public hatchOut() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
@@ -23,7 +23,8 @@ public class hatchOut extends Command {
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    Robot.m_subHatch.hatchOut();
+    //Robot.m_subHatch.hatchOut();
+    Robot.m_subHatch.setIsInUse(true);
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -41,7 +42,8 @@ public class hatchOut extends Command {
   // Called once after isFinished returns true
   @Override
   protected void end() {
-    Robot.m_subHatch.hatchStop();
+    Robot.m_subHatch.cancel();
+    Robot.m_subHatch.setIsInUse(false);
   }
 
   // Called when another command which requires one or more of the same

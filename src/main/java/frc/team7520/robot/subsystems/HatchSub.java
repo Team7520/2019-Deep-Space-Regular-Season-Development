@@ -46,12 +46,14 @@ public class HatchSub extends Subsystem {
   public void cancel() {
     hatchStop();
     canceled = true;
-    isUsed = false;
   }
 //public static void hatchStop() {
   public void hatchStop() {
-    motor.set(ControlMode.PercentOutput, 0);
-    isUsed = false;
+    motor.set(ControlMode.PercentOutput, 0);  
+  }
+
+  public void setIsInUse(boolean status) {
+      isUsed = status;
   }
 
 
