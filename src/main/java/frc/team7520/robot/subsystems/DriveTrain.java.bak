@@ -20,8 +20,8 @@ import frc.team7520.robot.Robot;
  * Add your docs here.
  */
 public class DriveTrain extends Subsystem {
-  private WPI_TalonSRX motorLeftMaster;
-  private WPI_TalonSRX motorRightMaster;
+  private TalonSRX motorLeftMaster;
+  private TalonSRX motorRightMaster;
   private DifferentialDrive drive; 
 
   private double startYaw = 0;
@@ -30,16 +30,16 @@ public class DriveTrain extends Subsystem {
     // Put methods for controlling this subsystem
   // here. Call these from Commands.
 
-  public void setLeftMasterMotor(WPI_TalonSRX leftMasterMotor) {
+  public void setLeftMasterMotor(TalonSRX leftMasterMotor) {
     motorLeftMaster = leftMasterMotor;
   }
 
-  public void setRightMasterMotor(WPI_TalonSRX rightMasterMotor) {
+  public void setRightMasterMotor(TalonSRX rightMasterMotor) {
     motorRightMaster = rightMasterMotor;
   }
 
-  public void getDriveTrain() {
-    drive = new DifferentialDrive(motorLeftMaster, motorRightMaster);
+  public void setDriveTrain(WPI_TalonSRX leftMasterMotor, WPI_TalonSRX rightMasterMotor) {
+    drive = new DifferentialDrive(leftMasterMotor, rightMasterMotor);
   }
 
   public void setStartYaw(double yaw) {

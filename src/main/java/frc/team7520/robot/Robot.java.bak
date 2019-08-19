@@ -26,7 +26,6 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.buttons.Button;
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 // import edu.wpi.first.wpilibj.VictorSP;
@@ -132,8 +131,6 @@ public CargoIntake cargoIntakeCmd;
 public hatchIn hatchInCmd;
 public hatchOut hatchOutCmd;
 
-AnalogInput lEncoderC1;
-AnalogInput lEncoderC2;
 
 public LimitSensors limitSensors = new LimitSensors();
 
@@ -143,22 +140,6 @@ public LimitSensors limitSensors = new LimitSensors();
    */
   @Override
   public void robotInit() {
-    lEncoderC1 = new AnalogInput(0);
-    lEncoderC2 = new AnalogInput(1);
-    lEncoderC1.setAverageBits(2);
-    lEncoderC1.setOversampleBits(4);
-    lEncoderC2.setAverageBits(2);
-    lEncoderC2.setOversampleBits(4);
-    AnalogInput.setGlobalSampleRate(62500);
-    lEncoderC1.setAccumulatorInitialValue(0);
-    lEncoderC1.setAccumulatorCenter(2048);
-    lEncoderC1.setAccumulatorDeadband(10);
-    lEncoderC1.resetAccumulator();
-    lEncoderC2.setAccumulatorInitialValue(0);
-    lEncoderC2.setAccumulatorCenter(2048);
-    lEncoderC2.setAccumulatorDeadband(10);
-    lEncoderC2.resetAccumulator();
-   
     SmartDashboard.putString("Auton Chooser", " select before each game");
     m_oi = new OI();
     m_chooser.setDefaultOption("Hatch In (up) (Default Auton)", new hatchIn());
@@ -184,8 +165,6 @@ public LimitSensors limitSensors = new LimitSensors();
     // chooser.addOption("My Auto", new MyAutoCommand());
     SmartDashboard.putData("Auto mode", m_chooser);
 
-    SmartDashboard.putNumber("Left Encoder", lEncoderC1.getVoltage());
-
     SmartDashboard.getBoolean("Update sensors status", updateSensorsStatus);
     System.out.println("robotInit");
 
@@ -194,6 +173,7 @@ public LimitSensors limitSensors = new LimitSensors();
 
  this.XboxControl = new Joystick(2);
  driverController = new Joystick(1);
+
 
  //buttoMoveStraight = new JoystickButton(this.OtherJoystick, 1);
  button1 = new JoystickButton(XboxControl, 1);
@@ -300,7 +280,7 @@ cameraArm.setFPS(10);
   // assign motors for subsystems
   m_driveTrain.setLeftMasterMotor(leftDrive1);
   m_driveTrain.setRightMasterMotor(rightDrive1);
-  m_driveTrain.getDriveTrain();
+  m_driveTrain.setDriveTrain(leftDrive1, rightDrive1);
 
   m_subArm.setMotor(this.armMotor);
   m_subConveyer.setMotor(this.ballIntake);
@@ -391,7 +371,6 @@ cameraArm.setFPS(10);
     SmartDashboard.putNumber("NavX Yaw  (+ CW, - CCW)",    navX.getZAngle());
     SmartDashboard.putNumber("NavX Pitch(+ Tilt Backward)", navX.getPitch());
     SmartDashboard.putNumber("NavX Roll (+ Roll Left)", navX.getRoll());
-    SmartDashboard.putNumber("Left Encoder", lEncoderC1.getVoltage());
   }
 
   /**
@@ -483,7 +462,6 @@ cameraArm.setFPS(10);
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    System.out.println(lEncoderC1.getAccumulatorValue());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -512,14 +490,13 @@ cameraArm.setFPS(10);
 
     if(whichControls == true) {
 
-       m_driveTrain.move(driverLeftY, driverLeftX); 
+        drive.arcadeDrive(driverLeftY, driverLeftX); 
         //should be stick forward = robot backward, stick backward = robot forward
         
     }
 
     else {
-      
-      m_driveTrain.move(-driverLeftY, driverLeftX);
+        drive.arcadeDrive(-driverLeftY, driverLeftX);
         //should be stick forward = robot forward, stick backward = robot backward
         
     }
