@@ -15,7 +15,9 @@ import frc.team7520.robot.subsystems.*;
 
 public class hatchIn extends Command {
   public boolean canceled = false;
-  public double timeout = 0.5; //seconds
+  public double timeout = 0.25; //seconds
+  private static hatchIn instance; 
+
   public hatchIn() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
@@ -23,8 +25,16 @@ public class hatchIn extends Command {
     requires(Robot.m_subHatch);
 
     setTimeout(timeout);
+    setInterruptible(true);
 
 //    Robot.m_subHatch.isUsed = true;
+  }
+
+  public static hatchIn getInstance() {
+      if(instance == null) {
+        instance = new hatchIn();
+      }
+      return instance;
   }
 
 //  public void cancel() {

@@ -10,6 +10,8 @@ package frc.team7520.robot.commands;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 
 public class CommandGroupTest extends CommandGroup {
+
+  private static CommandGroupTest instance;
   /**
    * Add your docs here.
    */
@@ -33,5 +35,12 @@ public class CommandGroupTest extends CommandGroup {
     // e.g. if Command1 requires chassis, and Command2 requires arm,
     // a CommandGroup containing them would require both the chassis and the
     // arm.
+  }
+
+  public static CommandGroupTest getInstance() {
+    if(instance == null) {
+      instance = new CommandGroupTest();
+    }
+    return instance;
   }
 }

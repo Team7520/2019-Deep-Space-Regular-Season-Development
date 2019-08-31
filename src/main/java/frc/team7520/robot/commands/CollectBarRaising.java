@@ -13,6 +13,7 @@ import frc.team7520.robot.subsystems.*;
 
 public class CollectBarRaising extends Command {
   public double timeout = 1.0; //seconds
+  private static CollectBarRaising instance;
 
   public CollectBarRaising() {
     // Use requires() here to declare subsystem dependencies
@@ -20,12 +21,20 @@ public class CollectBarRaising extends Command {
     requires(Robot.m_subCollectBars);
 
     setTimeout(timeout);
+    setInterruptible(true);
   }
 
+  public static CollectBarRaising getInstance() {
+    if(instance == null) {
+      instance = new CollectBarRaising();
+    }
+    return instance;
+}
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
+    Robot.m_subCollectBars.setIsInUse(true);
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -48,6 +57,7 @@ public class CollectBarRaising extends Command {
   @Override
   protected void end() {
     Robot.m_subCollectBars.stop();
+    Robot.m_subCollectBars.setIsInUse(false);
   }
 
   // Called when another command which requires one or more of the same

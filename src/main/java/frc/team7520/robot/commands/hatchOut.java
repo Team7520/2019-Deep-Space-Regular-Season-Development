@@ -12,12 +12,23 @@ import frc.team7520.robot.Robot;
 import frc.team7520.robot.subsystems.*;
 
 public class hatchOut extends Command {
-  public double timeout = 0.5; //seconds
+  public double timeout = 0.25; //seconds
+  private static hatchOut instance;
+
   public hatchOut() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
     requires(Robot.m_subHatch);
+
     setTimeout(timeout);
+    setInterruptible(true);
+  }
+
+  public static hatchOut getInstance() {
+    if(instance == null) {
+      instance = new hatchOut();
+    }
+    return instance;
   }
 
   // Called just before this Command runs the first time
