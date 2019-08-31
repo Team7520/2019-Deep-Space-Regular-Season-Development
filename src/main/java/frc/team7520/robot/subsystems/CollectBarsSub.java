@@ -41,12 +41,11 @@ public class CollectBarsSub extends Subsystem {
     return upLimitSwitch.get();
   }
 
-
   public void raiseUp() {
     motor.set(ControlMode.PercentOutput, speed);
   }
 
-  public void lowingDown() {
+  public void lowerDown() {
     motor.set(ControlMode.PercentOutput, -speed);
   }
 
@@ -54,6 +53,11 @@ public class CollectBarsSub extends Subsystem {
   public void stop() {
     motor.set(ControlMode.PercentOutput, 0);
   }
+
+  public void setIsInUse(boolean status) {
+    isUsed = status;
+}
+
   @Override
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.

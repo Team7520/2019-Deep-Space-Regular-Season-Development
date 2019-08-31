@@ -56,8 +56,6 @@ public class HatchSub extends Subsystem {
       isUsed = status;
   }
 
-
-
   @Override
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.
