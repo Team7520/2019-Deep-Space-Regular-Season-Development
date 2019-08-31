@@ -11,16 +11,29 @@ import edu.wpi.first.wpilibj.command.Command;
 import frc.team7520.robot.Robot;
 
 public class AutonCrossHabLine extends Command {
+
+  private static AutonCrossHabLine instance;
+
   public AutonCrossHabLine() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
     requires(Robot.m_driveTrain);
+
     setTimeout(3.0);
+    setInterruptible(true);
+  }
+
+  public static AutonCrossHabLine getInstance() {
+    if(instance == null) {
+      instance = new AutonCrossHabLine();
+    }
+    return instance;
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
+    Robot.m_driveTrain.isInAuto = true;
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -42,7 +55,8 @@ public class AutonCrossHabLine extends Command {
   // Called once after isFinished returns true
   @Override
   protected void end() {
-    Robot.m_driveTrain.moveStraight(0);
+    Robot.m_driveTrain.stop();
+    Robot.m_driveTrain.isInAuto = false;
   }
 
   // Called when another command which requires one or more of the same
