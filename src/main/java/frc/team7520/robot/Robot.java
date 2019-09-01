@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.buttons.Button;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 // import edu.wpi.first.wpilibj.VictorSP;
@@ -49,6 +50,7 @@ import frc.team7520.robot.DriveControls;
  * project.
  */
 public class Robot extends TimedRobot {
+
   public static ExampleSubsystem m_subsystem = new ExampleSubsystem();
   public static DriveTrain m_driveTrain = new DriveTrain();
   public static ArmSub m_subArm = new ArmSub();
@@ -111,6 +113,8 @@ private boolean updateSensorsStatus = false;
 //private Solenoid exampleSolenoid1;
 public DoubleSolenoid exampleSolenoid1;
 
+public Button buttonCancel1;
+public Button buttonCancel2;
 public Button buttoMoveStraight;
 public Button button1;
 public Button button2;
@@ -131,6 +135,8 @@ public CargoIntake cargoIntakeCmd;
 public hatchIn hatchInCmd;
 public hatchOut hatchOutCmd;
 
+AnalogInput lEncoderC1;
+AnalogInput lEncoderC2;
 
 public LimitSensors limitSensors = new LimitSensors();
 
@@ -140,33 +146,6 @@ public LimitSensors limitSensors = new LimitSensors();
    */
   @Override
   public void robotInit() {
-    SmartDashboard.putString("Auton Chooser", " select before each game");
-    m_oi = new OI();
-    m_chooser.setDefaultOption("Hatch In (up) (Default Auton)", new hatchIn());
-    m_chooser.addOption("Hatch Out (down)", new hatchOut());
-    m_chooser.addOption("Collect Bar Up", new CollectBarRaising());
-    m_chooser.addOption("Collect Bar Down", new CollectBarLowering());
-    m_chooser.addOption("Cargo Intake", new CargoIntake());
-    m_chooser.addOption("Cargo Shoot", new CargoShoot());
-    m_chooser.addOption("Arm Up To Limit", new ArmToUpLimit());
-    m_chooser.addOption("Hatch In and Out",new CommandGroupTest()); //testing commandgroups
-
-    m_chooser.addOption("Cross Hab Line (Default Auto)", new AutonCrossHabLine());
-    //m_chooser.addOption("Do Nothing (idle)", new AutonDoNothing());
-    //m_chooser.addOption("Front Cargo Panel", new AutonFrontCargoPanel());
-    //m_chooser.addOption("Side Cargo Panel", new AutonSideCargoPanel());
-    //m_chooser.addOption("Rocket Cargo Panel", new AutonRocketPanel());
-    //m_chooser.addOption(name, object);
-
-    //m_chooser.addObject("Ed's Controls", DriveControls.ED_CONTROLS);
-    SmartDashboard.putBoolean("Ed's Controls", true);
-    
-    
-    // chooser.addOption("My Auto", new MyAutoCommand());
-    SmartDashboard.putData("Auto mode", m_chooser);
-
-    SmartDashboard.getBoolean("Update sensors status", updateSensorsStatus);
-    System.out.println("robotInit");
 
  //this.OtherJoystick = new Joystick(0);
  //this.OneJoystick = new Joystick(1); 
@@ -174,8 +153,9 @@ public LimitSensors limitSensors = new LimitSensors();
  this.XboxControl = new Joystick(2);
  driverController = new Joystick(1);
 
-
  //buttoMoveStraight = new JoystickButton(this.OtherJoystick, 1);
+ buttonCancel1 = new JoystickButton(driverController, 4);
+ buttonCancel2 = new JoystickButton(driverController, 5);
  button1 = new JoystickButton(XboxControl, 1);
  button2 = new JoystickButton(XboxControl, 2);
  button3 = new JoystickButton(XboxControl, 3);
@@ -209,7 +189,6 @@ disabling camera stuff to see if it works*/
  } catch (Exception e) {
    e.printStackTrace();
  }
-
  try {
   this.cameraRear = new UsbCamera("usb cam rear", "/note/video1");
   CameraServer.getInstance().addCamera(this.cameraRear);
@@ -268,19 +247,20 @@ cameraArm.setFPS(10);
   setMotorsConfigurations();
 
   // set followers
-  this.leftDrive2.set(ControlMode.Follower , 0);
-  this.rightDrive2.set(ControlMode.Follower , 2);
+  // this.leftDrive2.set(ControlMode.Follower , 0);
+  // this.rightDrive2.set(ControlMode.Follower , 2);
 
-  drive = new DifferentialDrive(leftDrive1, rightDrive1);
-
-//this.ballIntake.set(ControlMode.Follower , 1);
+  
 
   this.exampleSolenoid1 =  new DoubleSolenoid(0,1); 
 
   // assign motors for subsystems
-  m_driveTrain.setLeftMasterMotor(leftDrive1);
-  m_driveTrain.setRightMasterMotor(rightDrive1);
-  m_driveTrain.setDriveTrain(leftDrive1, rightDrive1);
+  m_driveTrain.setLeftMotorGroup(leftDrive1, leftDrive2);
+  m_driveTrain.setRightMotorGroup(rightDrive1, rightDrive2);
+  m_driveTrain.configSpeedPlan(); //consider using enums for SpeedPlans and other types of which there are multiple objects
+  m_driveTrain.getDriveTrain();
+
+  m_chooser.addOption("Move Gyro", new MoveGyro(10, 0, 0.7, false));
 
   m_subArm.setMotor(this.armMotor);
   m_subConveyer.setMotor(this.ballIntake);
@@ -295,6 +275,38 @@ cameraArm.setFPS(10);
   hatchInCmd = new hatchIn(); //the commands here are not scheduled to run for some reason
   hatchOutCmd = new hatchOut(); //these commands are put under a "value" parameter; do these commands give values?
   cargoIntakeCmd = new CargoIntake();
+
+  SmartDashboard.putString("Auton Chooser", " select before each game");
+    m_oi = new OI();
+    m_chooser.addOption("Hatch In (up)", hatchIn.getInstance());
+    m_chooser.addOption("Hatch Out (down)", hatchOut.getInstance());
+    m_chooser.addOption("Hatch In and Out", CommandGroupTest.getInstance()); //testing commandgroups
+    m_chooser.addOption("Collect Bar Up", new CollectBarRaising());
+    m_chooser.addOption("Collect Bar Down", new CollectBarLowering());
+    m_chooser.addOption("Cargo Intake", new CargoIntake());
+    m_chooser.addOption("Cargo Shoot", new CargoShoot());
+    m_chooser.addOption("Arm Up To Limit", new ArmToUpLimit());
+    m_chooser.addOption("Auton Side Cargo Panel", new AutonSideCargoPanel());
+    m_chooser.setDefaultOption("Cross Hab Line (Default Auto)", AutonCrossHabLine.getInstance());
+    //m_chooser.addOption("Do Nothing (idle)", new AutonDoNothing());
+    //m_chooser.addOption("Front Cargo Panel", new AutonFrontCargoPanel());
+    //m_chooser.addOption("Side Cargo Panel", new AutonSideCargoPanel());
+    //m_chooser.addOption("Rocket Cargo Panel", new AutonRocketPanel());
+    //m_chooser.addOption(name, object);
+
+    //m_chooser.addObject("Ed's Controls", DriveControls.ED_CONTROLS);
+    SmartDashboard.putBoolean("Ed's Controls", true);
+    
+    
+    // chooser.addOption("My Auto", new MyAutoCommand());
+    SmartDashboard.putData("Auto mode", m_chooser);
+
+    //  SmartDashboard.putNumber("Left Encoder", lEncoderC1.getVoltage());
+    //  SmartDashboard.putNumber("Right Encoder", lEncoderC2.getVoltage());
+
+    
+    SmartDashboard.getBoolean("Update sensors status", updateSensorsStatus);
+    System.out.println("robotInit");
 
   // sensor reading on/off = 
   SmartDashboard.putBoolean("Update sensors status", upArmLimitSwitch.get());
@@ -327,6 +339,12 @@ cameraArm.setFPS(10);
 
     this.rightDrive1.enableCurrentLimit(true);
     this.rightDrive1.configContinuousCurrentLimit(20, 0);
+
+    leftDrive1.setSensorPhase(true);
+	  rightDrive1.setSensorPhase(true);
+		
+	  leftDrive1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
+    rightDrive1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
 
 //    this.rightDrive2.enableCurrentLimit(true);// not available for a Victor motor controller
 //    this.rightDrive2.configContinuousCurrentLimit(20, 0);// not available for a Victor motor controller
@@ -371,6 +389,8 @@ cameraArm.setFPS(10);
     SmartDashboard.putNumber("NavX Yaw  (+ CW, - CCW)",    navX.getZAngle());
     SmartDashboard.putNumber("NavX Pitch(+ Tilt Backward)", navX.getPitch());
     SmartDashboard.putNumber("NavX Roll (+ Roll Left)", navX.getRoll());
+    SmartDashboard.putNumber("Left Encoder - Teleop", leftDrive1.getSensorCollection().getQuadraturePosition());// *  
+    SmartDashboard.putNumber("Right Encoder - Teleop", rightDrive1.getSensorCollection().getQuadraturePosition());// *  
   }
 
   /**
@@ -436,7 +456,6 @@ cameraArm.setFPS(10);
   //  this.rightDrive2.set(ControlMode.SPercentOutput , 0.3);
    
   }
-
    else if(timePassed < 5000)  {//turn motors same way to turn the robot
    this.leftDrive1.set(ControlMode.PercentOutput ,0.3);
    //this.leftDrive2.set(ControlMode.PercentOutput , 0.3);
@@ -450,8 +469,7 @@ cameraArm.setFPS(10);
    // this.rightDrive2.set(0.0);
    }
 */
-
-//teleopGamePadControl();
+  teleopGamePadControl();
 
 }
   
@@ -462,6 +480,7 @@ cameraArm.setFPS(10);
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+    // System.out.println(lEncoderC1.getAccumulatorValue());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -480,6 +499,15 @@ cameraArm.setFPS(10);
 
   public void teleopGamePadControl() {
 
+    // cancel ongoing commands or command groups
+    if(buttonCancel1.get() && buttonCancel2.get())
+    {
+      // do cancel 
+    }
+
+    if(m_driveTrain.isInAuto == true){
+      //return;
+    }
     //05/19/2019 - programming objectives for the summer: -working on having usable commands/auton
     //-vision using opencv- recognize cargo balls at the very least
 
@@ -488,15 +516,16 @@ cameraArm.setFPS(10);
     double driverRightX = driverController.getRawAxis(4);
     double driverRightY = driverController.getRawAxis(5);
 
-    if(whichControls == true) {
-
-        drive.arcadeDrive(driverLeftY, driverLeftX); 
+    if((whichControls == true) && (!m_driveTrain.isInAuto)) {
+       
+       m_driveTrain.move(driverLeftY, driverLeftX); 
         //should be stick forward = robot backward, stick backward = robot forward
         
     }
 
-    else {
-        drive.arcadeDrive(-driverLeftY, driverLeftX);
+    else if((whichControls == false) && (!m_driveTrain.isInAuto)) {
+      
+      m_driveTrain.move(-driverLeftY, driverLeftX); 
         //should be stick forward = robot forward, stick backward = robot backward
         
     }
@@ -519,14 +548,10 @@ cameraArm.setFPS(10);
 
     /*  double leftStick = this.operator.getRawAxis(0);
         double rightStick = this.operator.getRawAxis(1);
-
     // calculating our outputs
-
-
     //setting speed controllers
     this.leftDrive1.set(-leftStick);
     this.leftDrive2.set(-leftStick);
-
     this.rightDrive1.set(rightStick);
     this.rightDrive2.set(rightStick);
     */
@@ -540,9 +565,9 @@ cameraArm.setFPS(10);
     //double driverX = this.driver.getRawAxis(0);
     // double driverY = this.OneJoystick.getRawAxis(1);
     // double rotation = this.OneJoystick.getRawAxis(2);// rotates_the_bot
-    double gamepadY = -this.XboxControl.getRawAxis(5); //1
+    double gamepadY = -this.XboxControl.getRawAxis(1); //1
 
-    double gamepad1Y = this.XboxControl.getRawAxis(1);//5
+    double gamepad1Y = this.XboxControl.getRawAxis(5);//5
     
     //System.out.println(driverX+','+driverY);
     // calculations of output
@@ -557,7 +582,6 @@ cameraArm.setFPS(10);
     double minDriveTrainOut = 0.1;
     /*if(Math.abs(leftOut) < minDriveTrainOut)
       leftOut = 0;
-
     if(Math.abs(rightOut) < minDriveTrainOut)
       rightOut = 0;*/
     
@@ -582,7 +606,9 @@ cameraArm.setFPS(10);
     
 
     if((Math.abs(intakeOut) > 0.1))  { 
-      this.ballIntake.set(ControlMode.PercentOutput , (intakeOut * 0.75));
+//      this.ballIntake.set(ControlMode.PercentOutput , (intakeOut * 0.75));
+      // Scott, reverse, when outreach, small children complaint. Children  get confused up or down.
+      this.ballIntake.set(ControlMode.PercentOutput , -(intakeOut * 0.75));
 /*      limit switch stuff that was written during the ON provincials
 // intakeLowerLimitSwitch.get()
       // logic was disscussed after the 1st day of matches at the ON provincials Science division
@@ -622,8 +648,7 @@ cameraArm.setFPS(10);
 //    button1.whenPressed(new hatchIn());
 //    button4.whenPressed(new hatchOut());
     
-    if(!m_subHatch.isUsed) // if it is not being used by a command right now
-    {
+    //if(!m_subHatch.isUsed) // if it is not being used by a command right now
       if(!button1.get() && !button4.get())
       {
         this.hatchOuttake.set(ControlMode.PercentOutput , 0);
@@ -631,14 +656,14 @@ cameraArm.setFPS(10);
       else if(button1.get())
       {
         //this.hatchOuttake.set(ControlMode.PercentOutput , 1);
-        m_subHatch.hatchIn();
+        button1.whenPressed(hatchIn.getInstance());
       }
       else if(button4.get())
       {
         //this.hatchOuttake.set(ControlMode.PercentOutput , -1);
-        m_subHatch.hatchOut();
+        button4.whenPressed(hatchOut.getInstance());
       }
-    }
+    
 
    /* if(otherButton1.get()) //this allows for straight driving
     {
@@ -659,7 +684,6 @@ cameraArm.setFPS(10);
     else {
       this.leftClimber.set(ControlMode.PercentOutput, 0);
     }
-
   if(button6.get() || button8.get()) { 
     if(button6.get()) {
       this.rightClimber.set(ControlMode.PercentOutput, 1);
@@ -689,14 +713,13 @@ cameraArm.setFPS(10);
    // note: leftCollectBar motor is master,right one is follower  
   if(button5.get() || button6.get()) { 
     if(button5.get() && upCollectBarLimitSwitch.get()) {
-      this.leftCollectBar.set(ControlMode.PercentOutput, 0.8);
+      CollectBarRaising.getInstance();
     }
     else if(button6.get()) {
-        this.leftCollectBar.set(ControlMode.PercentOutput, -0.8);
-      }        
-    }
-    else {
-        this.leftCollectBar.set(ControlMode.PercentOutput, 0);
+      CollectBarLowering.getInstance();
+    }        
+  } else {
+      m_subCollectBars.stop();
     }
 
 
@@ -706,7 +729,6 @@ cameraArm.setFPS(10);
 //      button3.whenPressed(new hatchIn());
 /*
       button4.whenPressed(new hatchOut());
-
       button3.whenReleased(new hatchStop());
       button4.whenReleased(new hatchStop());
       
